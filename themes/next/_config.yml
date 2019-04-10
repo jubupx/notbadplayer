@@ -97,6 +97,10 @@ menu:
   #tags: /tags/ || tags
   categories: /categories/ || th
   archives: /archives/ || archive
+  Kungfuer: https://github.com/Kungfuer || archive
+  AbsolutelyBeyond: https://github.com/AbsolutelyBeyond || archive
+  News: http://news.notbadplayer.com || archive
+  Demo: http://demo.notbadplayer.com || archive
   #schedule: /schedule/ || calendar
   #sitemap: /sitemap.xml || sitemap
   #commonweal: /404/ || heartbeat
