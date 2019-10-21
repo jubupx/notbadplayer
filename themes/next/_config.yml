@@ -382,9 +382,9 @@ changyan:
 # You can get your appid and appkey from https://leancloud.cn
 # more info please open https://valine.js.org
 valine:
-  enable: false
-  appid:  # your leancloud application appid
-  appkey:  # your leancloud application appkey
+  enable: true
+  appid:  pyLBWIbLdeFxu96M6vEs2RIE-gzGzoHsz
+  appkey:  SHw9JlPunGTfMDW52MRD3BjG
   notify: false # mail notifier , https://github.com/xCss/Valine/wiki
   verify: false # Verification code
   placeholder: Just go go # comment box placeholder
@@ -405,16 +405,16 @@ valine:
 # Introduction: https://imsun.net/posts/gitment-introduction/
 # You can get your Github ID from https://api.github.com/users/<Github username>
 gitment:
-  enable: true
-  mint: true # RECOMMEND, A mint on Gitment, to support count, language and proxy_gateway
-  count: true # Show comments count in post meta area
-  lazy: false# Comments lazy loading with a button
-  cleanly: false # Hide 'Powered by ...' on footer, and more
+  enable: false
+  mint: true
+  count: true 
+  lazy: false
+  cleanly: false
   language: # Force language, or auto switch by theme
-  github_user:jubupx
-  github_repo:notbadplayer
-  client_id:Iv1.ab6bc99b9a4bf289
-  client_secret:e6b2e5c7319b9614e0a8358dc4b404ed9dbef4a7
+  github_user: jubupx
+  github_repo: notbadplayer
+  client_id: Iv1.ab6bc99b9a4bf289
+  client_secret: e6b2e5c7319b9614e0a8358dc4b404ed9dbef4a7
   proxy_gateway: # Address of api proxy, See: https://github.com/aimingoo/intersect
   redirect_protocol: # Protocol of redirect_uri with force_redirect_protocol when mint enabled
 
