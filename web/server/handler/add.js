@@ -1,16 +1,6 @@
-function page(request, response, global)
-{
-    let token = request.headers.token;
-    if(!token || token != global.token) {
-
-        response.write('{"msg":"操作失败!"}')
-        response.end();
-        return;
-    }
-
+function page(request, response, global) {
 
     let dataManager = global.dataManager;
-
 
     dataManager.GetMessageList(function (msglist)
     {
@@ -21,7 +11,8 @@ function page(request, response, global)
     });
 }
 
-exports.init = function (pagemap)
+exports.init = function (pagemap, sessionCheck)
 {
     pagemap["add"] = page;
+    sessionCheck["add"] = require('../GlobalTokenCheck');
 }

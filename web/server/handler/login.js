@@ -27,7 +27,7 @@ function page(request, response, global) {
     }
 }
 
-exports.init = function (pagemap)
+exports.init = function (pagemap, sessionCheck)
 {
     pagemap["login"] = page;
 }

@@ -1,5 +1,7 @@
 function page(request, response, global)
 {
+    let token = request.headers.token;
+
     let dataManager = global.dataManager;
     dataManager.GetMessageList(function (msglist)
     {
@@ -9,7 +11,7 @@ function page(request, response, global)
     });
 }
 
-exports.init = function (pagemap)
+exports.init = function (pagemap, sessionCheck)
 {
     pagemap["list"] = page;
 }

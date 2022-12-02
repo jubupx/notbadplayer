@@ -1,22 +1,63 @@
 var http = require('http');
+var querystring = require('querystring');
 
 var port = 81;
 
 console.log("sever run at " , port);
 
 var httpHandlers = {};
+var sessionCheck = {};
+
 var global = {};
 
 const DataManager = require('./DataManager');
 global.dataManager = new DataManager();
 
 
-require('./handler/index').init(httpHandlers);
-require('./handler/list').init(httpHandlers);
-require('./handler/login').init(httpHandlers);
+///注册页面处理
+
+require('./handler/index').init(httpHandlers, sessionCheck);
+require('./handler/list').init(httpHandlers, sessionCheck);
+require('./handler/login').init(httpHandlers, sessionCheck);
+
+
+
+
+///处理HTTP的请求数据
+function OnProcessHttp(request, response, callback)
+{
+    if(request.method == 'POST')
+    {
+        var queryData = "";
+
+        request.on('data', function(data)
+        {
+            queryData += data;
+            /// > 5m error
+            if(queryData.length > 0x500000)
+            {
+                queryData = "";
+                response.writeHead(413, {'Content-Type': 'text/plain'}).end();
+                request.connection.destroy();
+            }
+        });
+
+        request.on('end', function()
+        {
+            request.postData = querystring.parse(queryData);
+            if(callback)
+                callback(request, response, global);
+        });
+    }else if(callback) {
+
+            callback(request, response, global);
+        }
+}
+
 
 //create a server object:
-http.createServer(function (request, response) {
+http.createServer(function (request, response)
+{
 
     var url = request.url;
     var mapname = url.replace("/","").split("?")[0] ;
@@ -24,9 +65,18 @@ http.createServer(function (request, response) {
     if(!mapname || mapname == "")
         mapname = "index";
 
+    var sCheck = sessionCheck[mapname];
+    if(sCheck && !sCheck(request, response, global))
+    {
+        ///sCheck需要处理回包的情况...
+        return;
+    }
+
     var handler = httpHandlers[mapname];
     if(handler) {
-        handler(request, response, global);
+        //handler(request, response, global);
+        OnProcessHttp(request, response, handler);
+
     } else {
 
         //for(var key in req)
