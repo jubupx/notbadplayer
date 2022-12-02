@@ -54,6 +54,13 @@
     </label>
   </div>
 
+  <div class="form-check">
+    <input  class="form-check-input" type="checkbox" value="" id="inde">
+    <label class="form-check-label" for="inde">
+      独立页面
+    </label>
+  </div>
+
   <div class="form-outline">
     <textarea class="form-control" id="content" rows="4"></textarea>
   </div>
@@ -64,11 +71,16 @@
 
 <script>
 
+  let currentid = document.location.toString().split("#")[1];
+
+
   function Submit()
   {
     let title = $("#title").val();
     let private = $("#private").prop('checked');
+    let inde = $("#inde").prop('checked');
     let content = $("#content").val();
+
 
     if(title == "" || content == ""){
       alert("标题或内容为空!");
@@ -77,9 +89,15 @@
 
 
     let formData = new URLSearchParams();
+
+
     formData.set('title', title);
     formData.set('private', private);
     formData.set('content', content);
+    formData.set('inde', inde);
+
+    if(currentid)
+      formData.set("id", currentid.replace("id=",""));
 
 
     fetch("add",
@@ -95,6 +113,39 @@
                 alert(data.msg);
               }else {
                 document.location = "index?systemindex.html";
+              }
+            });
+  }
+
+
+
+
+  if(currentid)
+  {
+
+    fetch("reqmsg?" + currentid, {
+      method: 'GET' // or 'PUT'
+     , headers: {
+        'token': localStorage.getItem("token"),
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+
+              if (data) {
+                let contentstr = "";
+                let title = "";
+
+                if (data.msg) {
+                  contentstr = data.msg;
+                } else {
+                  contentstr = decodeURIComponent(data.content);
+                  title = data.title;
+                }
+
+                $("#content").val(contentstr);
+                $("#title").val(title);
+                $("#private").prop('checked', data.private);
+                $("#inde").prop('checked', data.inde);
               }
             });
   }

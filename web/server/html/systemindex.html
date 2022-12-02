@@ -42,7 +42,7 @@
 </nav>
 
 <div class="list-group" id="systemlist">
-    <div class="list-group-item list-group-item-action"><a href="#" >人生亦如马拉松</a><button class="btn btn-link">删除</button></div>
+    <div class="list-group-item list-group-item-action"><a href="#" >当前没有数据</a><button class="btn btn-link">删除</button></div>
 </div>
 
 <div class="footer"  role="alert">
@@ -68,13 +68,55 @@
 
     function addoneitem(itemdata) {
 
+        return '<div class="list-group-item list-group-item-action">'
+
+        +    (itemdata.private ? "🔞‍" : (itemdata.inde ? "🎮" : "🏷️")) +
+
+        '<a href="index?systemadd.html#id='
+
+        + itemdata.id +
+        '" >'
+            + itemdata.title +
+
+        '</a>   '
+
+            + itemdata.date +
+
+        '<button class="btn btn-link" style="color: red" onclick="deleteItem(\''
+
+            + itemdata.id +
+
+        '\')">删除</button></div>';
+
     }
+
+    function deleteItem( id ) {
+
+        let opsucc = confirm("确定要删除此条记录吗?");
+        if(opsucc) {
+
+            fetch("delete?id=" + id,{
+                method: 'GET', // or 'PUT'
+                headers: {
+                    'token': localStorage.getItem("token"),
+                }
+            }).then((response) => response.json())
+                .then((data) => {
+                    if(data.msg){
+                        alert(data.msg);
+                    }else {
+                        document.location.reload(true);
+                    }
+                });
+        }
+    }
+
 
     function showlistitem(listdata) {
 
         let listhtml = "";
 
-        for(var item in listdata){
+        for(var item of listdata){
             listhtml += addoneitem(item);
         }
 
@@ -89,7 +131,7 @@
     }).then((response) => response.json())
         .then((data) => {
             if(data.msg){
-                alert(data.msg);
+                //alert(data.msg);
                 document.location = "index?admin.html";
             }else {
                 showlistitem(data);

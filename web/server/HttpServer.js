@@ -22,7 +22,9 @@ require('./handler/list').init(httpHandlers, sessionCheck);
 require('./handler/login').init(httpHandlers, sessionCheck);
 require('./handler/systemlist').init(httpHandlers, sessionCheck);
 require('./handler/add').init(httpHandlers, sessionCheck);
-
+require('./handler/reqmsg').init(httpHandlers, sessionCheck);
+require('./handler/app').init(httpHandlers, sessionCheck);
+require('./handler/delete').init(httpHandlers, sessionCheck);
 
 ///处理HTTP的请求数据
 function OnProcessHttp(request, response, callback)

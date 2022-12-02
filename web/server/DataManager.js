@@ -32,6 +32,82 @@ DataManager.prototype.GetPath = function(filename)
     return "data/" + filename;
 }
 
+
+
+DataManager.prototype.DeleteMessageByID = function(id, callback) {
+
+    let self = this;
+    self.GetMessageList(function (msglist)
+    {
+        let msg = null;
+        for(let i = 0;i < msglist.length; i++){
+            let item = msglist[i];
+            if(item.id == id) {
+                msg = item;
+                msglist.splice(i,1);
+                break;
+            }
+        }
+
+        if(msg){
+
+            ///更新列表
+            self.UpdateMessageList(
+                msglist, callback
+            );
+
+            ///删除文件
+            fs.unlink( self.GetPath(msg.id)
+                , function (err) {
+
+                    if(err) console.log("删除文件:", msg.id, err);
+                    else console.log("删除文件成功", msg.id);
+                }
+            );
+
+        }else if(callback){
+            callback(false, "没有找到相关ID数据!!");
+        }
+    });
+}
+
+DataManager.prototype.GetMessageByID = function(id, encode, callback)
+{
+    let self = this;
+    self.GetMessageList(function (msglist)
+    {
+        let msg = null;
+        for(var item of msglist){
+            if(item.id == id) {
+
+                msg = {};
+                msg.id = id;
+                msg.title = item.title;
+                msg.date = item.date;
+                msg.private = item.private;
+                msg.inde = item.inde;
+
+                break;
+            }
+        }
+
+        if(msg == null){
+            if(callback) callback(null)
+        }else{
+
+            self.Read(msg.id, function (ret, data) {
+                if(!ret){
+                    msg = null;
+                }else{
+                    msg.content = encode ? encodeURIComponent(data) : data;
+                }
+
+                if(callback) callback(msg);
+            })
+        }
+    });
+}
+
 DataManager.prototype.GetMessageList = function(callback)
 {
     let objectDatas = this.objectDatas;
@@ -45,7 +121,7 @@ DataManager.prototype.GetMessageList = function(callback)
 
     this.Read("MessageList", function (ret, data)
     {
-        if(!ret) {
+        if(!ret || data == "") {
             MessageList = [];
         }else{
                 MessageList = JSON.parse(data);

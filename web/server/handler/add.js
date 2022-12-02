@@ -5,14 +5,37 @@ function page(request, response, global) {
     {
         //先拿到当前的列表然后现写入数据
         let postData = request.postData;
+        let oldid = null;
+        let newmsg = null;
+
+        if(postData.id && postData.id != "") {
+            oldid = postData.id;
+            for(let itmmsg of msglist){
+                if(itmmsg.id == oldid) {
+                    newmsg = itmmsg;
+                    break;
+                }
+            }
+        }
 
         let now = new Date();
-        let newmsg = {};
 
-        newmsg.id = now.getTime();
+        if(newmsg == null)
+        {
+            newmsg = {};
+            newmsg.id = now.getTime() + "";
+            newmsg.date = now.toLocaleString();
+        }
+
         newmsg.title = postData.title;
-        newmsg.date = now.toLocaleString();
         newmsg.private = (postData.private == "true");
+        newmsg.inde = (postData.inde == "true");
+
+        //私有的ID前面加了_
+        if(newmsg.private && newmsg.id.startsWith("_") == false)
+            newmsg.id = "_" + newmsg.id;
+        else if(newmsg.id.startsWith("_"))
+            newmsg.id = newmsg.id.replace("_","");
 
         let newmsgname = newmsg.id + "";
 
@@ -20,21 +43,23 @@ function page(request, response, global) {
             if(ret) {
 
                 ///插入到最新的位置
-                msglist.splice(0, 0, newmsg);
+                if(oldid == null)
+                        msglist.splice(0, 0, newmsg);
 
-                dataManager.UpdateMessageList(msglist, function (ret, err){
+                    dataManager.UpdateMessageList(msglist, function (ret, err) {
 
-                    if(ret){
+                        if (ret) {
 
-                        console.log("添加文章成功", newmsg.title);
-                        response.write('{}');
-                        response.end();
+                            console.log("添加文章成功", newmsg.title);
+                            response.write('{}');
+                            response.end();
 
-                    }else{
-                        response.write('{"msg":"更新消息列表失败!"}');
-                        response.end();
-                    }
-                });
+                        } else {
+                            response.write('{"msg":"更新消息列表失败!"}');
+                            response.end();
+                        }
+                    });
+
 
             }else{
 

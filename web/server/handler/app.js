@@ -27,9 +27,9 @@ function page(request, response, global)
     }
 
     let dataManager = global.dataManager;
-    dataManager.GetMessageByID(id, true, function (msgobj)
+    dataManager.GetMessageByID(id, false, function (msgobj)
     {
-        msgobj  ?   response.write(JSON.stringify(msgobj))
+        msgobj  ?   response.write(msgobj.content)
                 :   response.write('{"msg":"数据为空"}');
 
         response.end();
@@ -38,5 +38,5 @@ function page(request, response, global)
 
 exports.init = function (pagemap, sessionCheck)
 {
-    pagemap["reqmsg"] = page;
+    pagemap["app"] = page;
 }

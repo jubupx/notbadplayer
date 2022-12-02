@@ -5,9 +5,9 @@ function page(request, response, global)
     let urlpart2 = request.urlpart2;
     let htmlpath = "index.html";
 
-    if(urlpart2 && urlpart2.indexOf(".html"))
+    if(urlpart2 && urlpart2.indexOf(".html") != -1)
     {
-        htmlpath = urlpart2;
+        htmlpath = urlpart2.split("#")[0];
     }
 
     let dataManager = global.dataManager;
