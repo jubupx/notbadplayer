@@ -63,7 +63,7 @@ function page(request, response, global) {
 
             }else{
 
-                response.write('{"msg":"文件写入失败!"}');
+                response.write('{"msg":"' + msg + '"}');
                 response.end();
             }
         });
