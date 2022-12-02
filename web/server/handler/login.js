@@ -11,15 +11,30 @@ function makeid(length) {
 
 function page(request, response, global) {
 
-    let queryString = request.url;
+    let queryString = request.urlpart2;
     let urlParams = new URLSearchParams(queryString);
+
+    let quittoken = urlParams.get("token");
+    if(quittoken) {
+        if (quittoken == global.token) {
+            global.token = "";
+        }else {
+            console.log("token is diffrent but quit can success!!");
+        }
+
+        console.log("system quit success!!");
+        response.write('{}');
+        response.end();
+        return;
+    }
+
     let username = urlParams.get("username");
     let pwd = urlParams.get("pwd");
 
     if(username == "jubupx" && pwd == "jubupx2012") {
-
         global.token = makeid(8);
         response.write('{"token":"' + global.token +'"}');
+        response.end();
     }
     else{
         response.write('{"msg":"用户名或密码错误!"}');

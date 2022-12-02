@@ -1,0 +1,100 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+    <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+    <style>
+
+        body {
+            padding-bottom: 50px;
+        }
+
+        .footer {
+            position: fixed;
+            left: 0px;
+            bottom: 0px;
+            width: 100%;
+            height: 50px;
+            background-color: #eee;
+            z-index: 9999;
+            text-align: center;
+        }
+
+    </style>
+
+    <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+    <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+    <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="alert alert-primary" role="alert">
+    后台管理系统
+</div>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index">回到主页</a></li>
+        <li class="breadcrumb-item"><a href="index?systemadd.html">添加新篇</a></li>
+        <li class="breadcrumb-item" ><a href="javascript:quitSystem()" style="color: red">退出登录</a></li>
+    </ol>
+</nav>
+
+<div class="list-group" id="systemlist">
+    <div class="list-group-item list-group-item-action"><a href="#" >人生亦如马拉松</a><button class="btn btn-link">删除</button></div>
+</div>
+
+<div class="footer"  role="alert">
+    <div class="copyright">
+        <a href="https://beian.miit.gov.cn/" target="_blank" style="color: #aaaaaa">粤ICP备16066566号</a>
+    </div>
+</div>
+
+<script>
+
+    function quitSystem() {
+        fetch("login?token=" + localStorage.getItem("token"))
+            .then((response) => response.json())
+            .then((data) => {
+                if(data.msg){
+                    alert(data.msg);
+                }
+
+                    localStorage.removeItem("token");
+                    document.location = "index?admin.html";
+            });
+    }
+
+    function addoneitem(itemdata) {
+
+    }
+
+    function showlistitem(listdata) {
+
+        let listhtml = "";
+
+        for(var item in listdata){
+            listhtml += addoneitem(item);
+        }
+
+        $("#systemlist").html(listhtml);
+    }
+
+    fetch("systemlist",{
+        method: 'GET', // or 'PUT'
+        headers: {
+            'token': localStorage.getItem("token"),
+        }
+    }).then((response) => response.json())
+        .then((data) => {
+            if(data.msg){
+                alert(data.msg);
+                document.location = "index?admin.html";
+            }else {
+                showlistitem(data);
+            }
+        });
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ module.exports = function (request, response, global)
 
     if(!token || token != global.token)
     {
-        response.write('{"msg":"操作失败!"}')
+        response.write('{"msg":"operation prohibit!"}')
         response.end();
         return false;
     }

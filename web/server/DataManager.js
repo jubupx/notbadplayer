@@ -6,10 +6,29 @@ function DataManager() {
     ///先不设置大小后面再说吧
     this.fileDataCache = {};
     this.objectDatas = {};
+    this.htmlFilePath = "html/";
+
+    let htmlFilePath = this.htmlFilePath;
+    let fileDataCache = this.fileDataCache;
+
+    fs.watch(htmlFilePath,(event,filename)=>{
+
+        if(filename.endsWith("~"))
+            return;
+        console.log("html modify:", filename , (new Date()).toLocaleString());
+
+        let htmlFileName = htmlFilePath + filename;
+        if (filename && fileDataCache[htmlFileName])
+        {
+            fileDataCache[htmlFileName] = null;
+        }
+    })
 }
 
 DataManager.prototype.GetPath = function(filename)
 {
+    if(filename.indexOf(".html") != -1)
+        return this.htmlFilePath + filename;
     return "data/" + filename;
 }
 

@@ -18,9 +18,10 @@ global.dataManager = new DataManager();
 
 require('./handler/index').init(httpHandlers, sessionCheck);
 require('./handler/list').init(httpHandlers, sessionCheck);
+
 require('./handler/login').init(httpHandlers, sessionCheck);
-
-
+require('./handler/systemlist').init(httpHandlers, sessionCheck);
+require('./handler/add').init(httpHandlers, sessionCheck);
 
 
 ///处理HTTP的请求数据
@@ -58,9 +59,11 @@ function OnProcessHttp(request, response, callback)
 //create a server object:
 http.createServer(function (request, response)
 {
-
     var url = request.url;
-    var mapname = url.replace("/","").split("?")[0] ;
+    var urlparts = url.replace("/","").split("?");
+    var mapname = urlparts[0];
+
+    request.urlpart2 = urlparts[1];
 
     if(!mapname || mapname == "")
         mapname = "index";
@@ -82,7 +85,7 @@ http.createServer(function (request, response)
         //for(var key in req)
         // console.log("url=>",req[key],key);
 
-        response.write('page not found!'); //write a response to the client
+        response.write('{"msg":"page not found!"}'); //write a response to the client
         response.end(); //end the response
     }
 

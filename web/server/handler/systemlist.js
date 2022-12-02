@@ -11,5 +11,6 @@ function page(request, response, global)
 
 exports.init = function (pagemap, sessionCheck)
 {
-    pagemap["list"] = page;
+    pagemap["systemlist"] = page;
+    sessionCheck["systemlist"] = require('../GlobalTokenCheck');
 }

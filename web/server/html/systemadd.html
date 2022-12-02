@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>添加新篇</title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+  <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+      padding-bottom: 50px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 50px;
+      background-color: #eee;
+      z-index: 9999;
+      text-align: center;
+    }
+
+  </style>
+
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div class="alert alert-primary" role="alert">
+  添加新的篇章
+</div>
+<nav aria-label="breadcrumb">
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="index?systemindex.html">&lt;管理主页</a></li>
+  </ol>
+</nav>
+<div class="alert alert-secondary" role="alert">
+
+  <div class="input-group mb-3">
+    <input id="title" type="text" class="form-control" placeholder="标题" aria-label="Title" aria-describedby="basic-addon1">
+  </div>
+
+  <div class="form-check">
+    <input  class="form-check-input" type="checkbox" value="" id="private">
+    <label class="form-check-label" for="private">
+      仅自己可见
+    </label>
+  </div>
+
+  <div class="form-outline">
+    <textarea class="form-control" id="content" rows="4"></textarea>
+  </div>
+
+  <button type="button" class="btn btn-primary" onclick="Submit();">提交</button>
+</div>
+
+
+<script>
+
+  function Submit()
+  {
+    let title = $("#title").val();
+    let private = $("#private").prop('checked');
+    let content = $("#content").val();
+
+    if(title == "" || content == ""){
+      alert("标题或内容为空!");
+      return;
+    };
+
+
+    let formData = new URLSearchParams();
+    formData.set('title', title);
+    formData.set('private', private);
+    formData.set('content', content);
+
+
+    fetch("add",
+            {
+              body: formData ,
+              method: "post" ,
+              headers: {
+                'token': localStorage.getItem("token"),
+              }
+            }).then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                document.location = "index?systemindex.html";
+              }
+            });
+  }
+
+</script>
+
+</body>
+</html>

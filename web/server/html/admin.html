@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>管理</title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+  <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+      padding-bottom: 50px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 50px;
+      background-color: #eee;
+      z-index: 9999;
+      text-align: center;
+    }
+
+  </style>
+
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+
+
+  <script>
+
+    function DoLogin()
+    {
+      let userName = $("#username").val();
+      let pwd =  $("#pwd").val();
+
+      if(!userName  || userName == "" || !pwd || pwd == ""){
+        alert("请填写用户密码信息");
+        return;
+      }
+
+      fetch("login?username=" + userName + "&pwd=" + pwd)
+              .then((response) => response.json())
+              .then((data) => {
+                if(data.msg){
+                  alert(data.msg);
+                }else {
+                  localStorage.setItem("token", data.token);
+                  document.location = "index?systemindex.html";
+                }
+              });
+    }
+
+  </script>
+</head>
+<body>
+
+<div class="alert alert-light" role="alert">
+
+  <div class="alert alert-primary" role="alert" >
+    <span><a href="index">&lt;主页</a></span>
+  </div>
+
+<div>
+  <div class="form-group">
+    <label for="username">username</label>
+    <input type="email" class="form-control" id="username"  placeholder="Enter username">
+  </div>
+  <div class="form-group">
+    <label for="pwd">Password</label>
+    <input type="password" class="form-control" id="pwd" placeholder="Password">
+  </div>
+  <button class="btn btn-primary" onclick="DoLogin()">Submit</button>
+</div>
+</div>
+</body>
+</html>
