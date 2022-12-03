@@ -1,7 +1,7 @@
 var http = require('http');
 var querystring = require('querystring');
 
-var port = 81;
+var port = 80;
 
 console.log("sever run at " , port);
 
