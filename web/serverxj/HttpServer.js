@@ -1,9 +1,7 @@
 var http = require('http');
 var querystring = require('querystring');
 
-var port = 80;
 
-console.log("sever run at " , port);
 
 var httpHandlers = {};
 var sessionCheck = {};
@@ -117,37 +115,58 @@ function OnProcessHttp(request, response, callback)
 }
 
 
-//create a server object:
-http.createServer(function (request, response)
-{
-    var url = request.url;
-    var urlparts = url.replace("/","").split("?");
-    var mapname = urlparts[0];
 
-    request.urlpart2 = urlparts[1];
+function StartServer(config) {
 
-    if(!mapname || mapname == "")
-        mapname = "index";
-
-    var sCheck = sessionCheck[mapname];
-    if(sCheck && !sCheck(request, response, global))
-    {
-        ///sCheck需要处理回包的情况...
-        return;
+    if(!config){
+        config = {port: 80};
     }
 
-    var handler = httpHandlers[mapname];
-    if(handler) {
-        //handler(request, response, global);
-        OnProcessHttp(request, response, handler);
+    console.log("sever run at " , config.port);
+    //create a server object:
+    http.createServer(function (request, response) {
+        var url = request.url;
+        var urlparts = url.replace("/", "").split("?");
+        var mapname = urlparts[0];
 
-    } else {
+        request.urlpart2 = urlparts[1];
 
-        //for(var key in req)
-        // console.log("url=>",req[key],key);
+        if (!mapname || mapname == "")
+            mapname = "index";
 
-        response.write('{"msg":"page not found!"}'); //write a response to the client
-        response.end(); //end the response
+        var sCheck = sessionCheck[mapname];
+        if (sCheck && !sCheck(request, response, global)) {
+            ///sCheck需要处理回包的情况...
+            return;
+        }
+
+        var handler = httpHandlers[mapname];
+        if (handler) {
+            //handler(request, response, global);
+            OnProcessHttp(request, response, handler);
+
+        } else {
+
+            //for(var key in req)
+            // console.log("url=>",req[key],key);
+
+            response.write('{"msg":"page not found!"}'); //write a response to the client
+            response.end(); //end the response
+        }
+
+    }).listen(config.port); //the server object listens on port 8080
+
+}
+
+
+global.dataManager.Read("config", function (ret, data) {
+
+    let config = null;
+    if(ret){
+        config = JSON.parse(data);
+        if(!config.port)
+            config.port = 80;
     }
 
-}).listen(port); //the server object listens on port 8080
+    StartServer(config);
+});

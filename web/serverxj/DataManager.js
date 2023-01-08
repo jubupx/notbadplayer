@@ -293,7 +293,7 @@ DataManager.prototype.RemoveUserInfo = function(username, callback)
     });
 }
 
-
+/// callback(ret, data)
 DataManager.prototype.Read = function(filename, callback) {
 
     let cache = this.fileDataCache;
