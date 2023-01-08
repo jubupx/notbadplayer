@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+  <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+      padding-bottom: 50px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 50px;
+      background-color: #eee;
+      z-index: 9999;
+      text-align: center;
+    }
+
+  </style>
+
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<nav aria-label="breadcrumb">
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="index">&lt;主页</a></li>
+  </ol>
+</nav>
+
+<div class="alert alert-primary" role="alert" id="title">
+
+</div>
+
+<div class="alert alert-secondary" role="alert" id="content">
+</div>
+
+<script>
+
+  let id = document.location.toString().split("#")[1];
+
+  fetch("reqmsg?" + id,{
+    method: 'GET' // or 'PUT'
+  }).then((response) => response.json())
+          .then((data) => {
+
+            if(data) {
+              let contentstr = "";
+              let title = "";
+
+              if(data.msg) {
+                contentstr = data.msg;
+              }else {
+                contentstr = decodeURIComponent(data.content);
+                title = data.title;
+                }
+
+              $("#content").html(contentstr);
+              $("#title").html(title);
+              document.head.title = title;
+            }
+          });
+</script>
+
+</body>
+</html>

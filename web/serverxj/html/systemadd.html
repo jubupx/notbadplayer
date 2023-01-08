@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>录入新的信息</title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+  <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+      padding-bottom: 50px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 50px;
+      background-color: #eee;
+      z-index: 9999;
+      text-align: center;
+    }
+
+  </style>
+
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/bootstrap-autocomplete.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div class="alert alert-primary" role="alert">
+  录入新的信息
+</div>
+<nav aria-label="breadcrumb">
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="index">&lt;主页</a></li>
+  </ol>
+</nav>
+<div class="alert alert-secondary" role="alert">
+
+  <div class="input-group mb-3">
+    <input type="text" class="form-control basicAutoComplete" placeholder="车牌" autocomplete="off" id="carnumber" aria-describedby="basic-addon3" autocapitalize="none">
+  </div>
+
+  <div class="input-group mb-3">
+    <input class="form-control floatNumber"  placeholder="车型" id="cartype" type="text" required="">
+    <span>单位(方)</span>
+  </div>
+
+  <div class="input-group mb-3">
+    <input class="form-control floatNumber"  placeholder="金额" id="money" type="text" required="" >
+  </div>
+
+  <div id="userlistdiv" class="input-group mb-3">
+    <input id="username" type="text" class="form-control basicAutoComplete" placeholder="业务员(不填是自己)" autocomplete="off"  aria-describedby="basic-addon3" autocapitalize="none">
+  </div>
+
+  <div class="input-group mb-3">
+    <input class="form-control"  placeholder="日期(不填是当前时间)" id="date" type="text" required="" >
+    <button type="button" class="btn btn-success" onclick="">今天</button>
+  </div>
+
+
+  <button type="button" class="btn btn-primary" onclick="Submit();">添加记录</button>
+
+</div>
+
+
+<script>
+
+
+  ///初始化数据信息开始
+
+  var histroyCars = [];
+  var histroyCarsStr = localStorage.getItem("histroyCars");
+
+  if(histroyCarsStr)
+    histroyCars = JSON.parse(histroyCarsStr);
+
+  var histroyUsers = [];
+  var histroyUsersStr = localStorage.getItem("histroyUsers");
+
+  if(histroyUsersStr)
+    histroyUsers = JSON.parse(histroyUsersStr);
+
+
+  function AutoCompleteText(inputid, dataProvider)
+  {
+    $("#" + inputid).autoComplete({
+      resolver: "custom",
+      minLength: 1,
+      noResultsText: "没有找到记录",
+      events:
+              {
+                search: function (qry, callback) {
+                  if (dataProvider == null)
+                  {
+                    callback([]);
+                  }
+                  else
+                  {
+                    let upqry = qry.toUpperCase();
+                    let machurls = [];
+                    for (let urlstr of dataProvider)
+                    {
+                      if (urlstr.toUpperCase().indexOf(upqry) != -1)
+                      {
+                        machurls.push(urlstr);
+                      }
+                    }
+
+                    callback(machurls);
+                  }
+                }
+              }
+    });
+  }
+
+  AutoCompleteText("carnumber", histroyCars);
+
+
+  $('#cartype').on('input', function() {
+    this.value = this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g, '$1');
+  });
+
+  AutoCompleteText("username", histroyUsers);
+
+  $('#money').on('input', function() {
+    this.value = this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g, '$1');
+  });
+
+  // 判定是不是管理员呢？
+  // userlistdiv
+  var token = localStorage.getItem("token");
+  var issuper = false;
+
+  if(!token)
+  {
+    document.location = "index?admin.html";
+  }
+  else
+  {
+    issuper = token.startsWith("@");
+
+    if(false == issuper)
+    {
+        $("#userlistdiv").css("display", "none");
+    }
+  }
+
+  ///初始化数据信息结束
+
+  let currentid = document.location.toString().split("#")[1];
+
+
+  function Submit() {
+
+    let carnumber = $("#carnumber").val();
+    let cartype = $("#cartype").val();
+    let money = $("#money").val();
+    let username = $("#username").val();
+    let date = $("#date").val();
+
+
+    if(carnumber == "" || cartype == "" || money == "") {
+        alert("(车牌|车型|金额)不能为空");
+        return;
+    };
+
+
+    let formData = new URLSearchParams();
+
+
+    formData.set('carnumber', carnumber);
+    formData.set('cartype', cartype);
+    formData.set('money', money);
+    formData.set('username', username);
+    formData.set('date', date);
+
+
+    if(currentid)
+      formData.set("id", currentid.replace("id=",""));
+
+
+    fetch("add",
+            {
+              body: formData ,
+              method: "post" ,
+              headers: {
+                'token': localStorage.getItem("token"),
+              }
+            }).then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+
+                ///记录过往录入记录 后面改到服务器端
+
+                if(histroyCars.indexOf(carnumber) == -1) {
+
+                  histroyCars.push(carnumber);
+                  localStorage.setItem("histroyCars", JSON.stringify(histroyCars));
+
+                }
+
+                if(username != "" && histroyUsers.indexOf(username) == -1){
+                  histroyUsers.push(username);
+                  localStorage.setItem("histroyUsers", JSON.stringify(histroyUsers));
+                }
+
+
+                document.location = "index";
+              }
+            });
+  }
+
+
+  if(currentid)
+  {
+
+    fetch("reqmsg?" + currentid, {
+      method: 'GET' // or 'PUT'
+     , headers: {
+        'token': localStorage.getItem("token"),
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+
+              if(data && data.msg){
+                ///error
+                alert(data.msg);
+              }
+              else if (data) {
+
+                $("#carnumber").val(data.carnumber);
+                $("#cartype").val(data.cartype);
+                $("#money").val(data.money);
+                $("#date").val(data.date);
+                $("#username").val(data.username);
+              }
+            });
+  }
+
+
+</script>
+
+</body>
+</html>

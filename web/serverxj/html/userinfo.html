@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>用户信息管理</title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+  <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+      padding-bottom: 50px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 50px;
+      background-color: #eee;
+      z-index: 9999;
+      text-align: center;
+    }
+
+  </style>
+
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+
+
+</head>
+<body>
+
+<div class="alert alert-light" role="alert">
+
+  <div class="alert alert-primary" role="alert" >
+    用户信息管理
+  </div>
+
+<div>
+
+  <div class="alert alert-dark" role="alert">
+    <span><a href="index">&lt;主页</a></span>
+
+  </div>
+
+  <div id="usernamediv" class="form-group">
+    <label for="username">用户名</label>
+    <input type="email" class="form-control" id="username"  placeholder="">
+  </div>
+
+  <div class="form-group">
+    <label for="phone">称呼/手机号</label>
+    <input  class="form-control" id="phone"  placeholder="">
+  </div>
+  <div class="form-group">
+    <label for="pwd">密码</label>
+    <input type="password" class="form-control" id="pwd" placeholder="">
+  </div>
+
+  <div class="form-group">
+    <label for="pwd">确认密码</label>
+    <input type="password" class="form-control" id="pwd2" placeholder="">
+  </div>
+  <button class="btn btn-primary" onclick="DoUpdateUser()">更新信息</button>
+
+
+  <div id="admindiv">
+    <h5></h5>
+    <button class="btn btn-primary" onclick="DoAddUser()">新增用户</button>
+    <h5></h5>
+    <div class="alert alert-dark" role="alert">
+      用户列表
+    </div>
+
+  <ul id="userlist" class="list-group list-group-flush">
+  </ul>
+  </div>
+
+  <button class="btn btn-danger" onclick="QuitUser()">退出登录</button>
+</div>
+</div>
+
+
+<script>
+
+  var token = localStorage.getItem("token");
+  var issuper = false;
+
+  if(!token || !token.startsWith("@"))
+  {
+    if(!token)
+    {
+      document.location = "index?admin.html";
+    }
+    else
+    {
+      $("#usernamediv").css("display", "none");
+      $("#admindiv").css("display", "none");
+    }
+  }
+  else
+  {
+    issuper = true;
+    ///获取用户列表信息
+    refleshuserlist();
+  }
+
+  function DoUpdateUser()
+  {
+    let username = $("#username").val();
+    let pwd =  $("#pwd").val();
+    let phone = $("#phone").val();
+
+    if(pwd != $("#pwd2").val())
+    {
+      alert("两次密码输入不相同");
+      return;
+    }
+
+    if(pwd == "" && phone == "")
+    {
+        alert("没有信息需要更新")
+        return;
+    }
+
+    fetch("userop?op=update&username=" + username + "&pwd=" + pwd + "&phone=" + phone
+            , {
+              method: 'GET',
+              headers: {
+                'token': token,
+              }
+            }
+    )
+            .then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                if(issuper){
+                  refleshuserlist();
+                }
+                else{
+                  alert("更新信息成功!");
+                }
+              }
+            });
+  }
+
+  function DoAddUser()
+  {
+    let userName = $("#username").val();
+    let pwd =  $("#pwd").val();
+
+    if(!userName  || userName == "" || !pwd || pwd == ""){
+      alert("请填写用户密码信息");
+      return;
+    }
+
+    if(pwd != $("#pwd2").val())
+    {
+      alert("两次密码不一致");
+      return;
+    }
+
+    let phone = $("#phone").val();
+
+    fetch("userop?op=add&username=" + userName + "&pwd=" + pwd + "&phone=" + phone,{
+      method: 'GET',
+      headers: {
+        'token': token,
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                refleshuserlist();
+              }
+            });
+  }
+
+  function DoDeleteUser(username)
+  {
+    if(!confirm("确认删除吗?"))
+      return;
+    fetch("userop?op=delete&username=" + username, {
+      method: 'GET',
+      headers: {
+        'token': token,
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                refleshuserlist();
+              }
+            });
+  }
+
+  function QuitUser()
+  {
+    fetch("login?token=" + token)
+            .then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                localStorage.setItem("token", "");
+                document.location = "index?admin.html";
+              }
+            });
+  }
+
+  function refleshuserlist()
+  {
+    fetch("userlist", {
+      method: 'GET',
+      headers: {
+        'token': token,
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+              if (data.msg) {
+
+                ///TOKEN的验证失败
+                document.location = "index?admin.html";
+
+              } else {
+                showlistitem(data);
+              }
+            });
+  }
+
+  function addoneitem(userinfo)
+  {
+    let issuper = userinfo.flag > 0xfff;
+    //<li class="list-group-item">用户名 12221212 密码 <a href="#">删除</a></li>
+    return '<li class="list-group-item">'+ userinfo.name
+            + '|' + userinfo.phone
+            + '|' + (issuper ? "****" : userinfo.pwd)
+            + (issuper ? "" : '<a href="javascript:DoDeleteUser(\''+ userinfo.name +'\')">删除</a>')
+            +'</li>';
+  }
+
+  function showlistitem(listdata) {
+
+    let listhtml = "";
+
+    for(var item of listdata) {
+      listhtml += addoneitem(item);
+    }
+
+    $("#userlist").html(listhtml);
+  }
+
+</script>
+
+
+</body>
+</html>
