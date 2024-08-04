@@ -82,6 +82,8 @@ require('./handler/delete').init(httpHandlers, sessionCheck);
 require('./handler/userlist').init(httpHandlers, sessionCheck);
 require('./handler/userop').init(httpHandlers, sessionCheck);
 
+require('./handler/carlist').init(httpHandlers, sessionCheck);
+require('./handler/carop').init(httpHandlers, sessionCheck);
 
 ///处理HTTP的请求数据
 function OnProcessHttp(request, response, callback)

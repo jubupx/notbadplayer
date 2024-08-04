@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>车辆信息</title>
+  <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+
+  <link rel="stylesheet" href="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+      padding-bottom: 50px;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 50px;
+      background-color: #eee;
+      z-index: 9999;
+      text-align: center;
+    }
+
+  </style>
+
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/jquery.slim.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/libs/popper.min.js"></script>
+  <script src="https://notbadplayer-1251665341.file.myqcloud.com/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+
+
+</head>
+<body>
+
+<div class="alert alert-light" role="alert">
+
+  <div class="alert alert-primary" role="alert" >
+    车辆信息管理
+  </div>
+  <div>
+    <div class="alert alert-dark" role="alert">
+      <span><a href="index">&lt;主页</a></span>
+    </div>
+
+    <div id="admindiv">
+      <div class="alert alert-dark" role="alert">
+        <input type="email" style="width: 150px;"  id="carnum"  placeholder="车牌">
+        <input type="email" style="width: 80px;"  id="weight"  placeholder="尺寸">
+        <input type="email" style="width: 150px;"  id="phone"  placeholder="电话">
+        <button onclick="DoAddCar()">新增车辆</button>
+      </div>
+      <div class="alert alert-dark" role="alert">车辆列表 <input type="email"  id="search"  placeholder="搜索" oninput="updateSearchList();"></div>
+
+      <ul id="userlist" class="list-group list-group-flush"></ul>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+  var token = localStorage.getItem("token");
+  var issuper = false;
+
+  if(!token || !token.startsWith("@"))
+  {
+    if(!token)
+    {
+      document.location = "index?admin.html";
+    }
+    else
+    {
+      $("#usernamediv").css("display", "none");
+      $("#admindiv").css("display", "none");
+    }
+  }
+  else
+  {
+    issuper = true;
+    ///获取用户列表信息
+    refleshcarlist();
+  }
+
+  function DoAddCar()
+  {
+    let carnum = $("#carnum").val();
+    let weight =  $("#weight").val();
+
+    if(!carnum  || carnum == "" || isNaN(parseFloat(weight)))
+    {
+      alert("请填写信息");
+      return;
+    }
+
+    let phone = $("#phone").val();
+
+    fetch("carop?op=add&carnum=" + carnum + "&weight=" + weight + "&phone=" + phone,{
+      method: 'GET',
+      headers: {
+        'token': token,
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                refleshcarlist();
+              }
+            });
+  }
+
+  function DoDeleteCar(carnum)
+  {
+    if(!confirm("确认删除吗?"))
+      return;
+    fetch("carop?op=delete&carnum=" + carnum, {
+      method: 'GET',
+      headers: {
+        'token': token,
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+              if(data.msg){
+                alert(data.msg);
+              }else {
+                refleshcarlist();
+              }
+            });
+  }
+
+  function refleshcarlist()
+  {
+    fetch("carlist", {
+      method: 'GET',
+      headers: {
+        'token': token,
+      }
+    }).then((response) => response.json())
+            .then((data) => {
+              if (data.msg) {
+
+                ///TOKEN的验证失败
+                document.location = "index?admin.html";
+
+              } else {
+                showlistitem(data);
+              }
+            });
+  }
+
+  function addoneitem(car)
+  {
+    //<li class="list-group-item">用户名 12221212 密码 <a href="#">删除</a></li>
+
+    return '<li class="list-group-item border border-primary ">'+
+
+             '<span class="badge badge-warning">' + car.carnum + '</span>'
+            + '<span class="badge badge-secondary" style="margin-left: 10px;">' + car.weight + '方</span>'
+            + '<a style="margin-left: 30px;" href="javascript:DoDeleteCar(\''+ car.carnum +'\')">删除</a>'
+            +'</li>';
+  }
+
+  function updateSearchList()
+  {
+    if(window.carlist != null)
+      showlistitem(window.carlist);
+  }
+
+  function showlistitem(listdata)
+  {
+    if(listdata == undefined)
+    {
+      listdata = window.carlist;
+    }
+    else
+    {
+      window.carlist = listdata;
+    }
+
+    let listhtml = "";
+    let searchstr = $("#search").val();
+    let nosearch = (!searchstr || searchstr == "");
+
+
+
+    for(var item of listdata)
+    {
+      let infostr = addoneitem(item);
+      if(nosearch || infostr.indexOf(searchstr) != -1)
+      {
+        listhtml += infostr;
+      }
+    }
+
+    if(listhtml == "")
+    {
+      listhtml = "目前没有添加车辆信息";
+    }
+
+    $("#userlist").html(listhtml);
+  }
+
+</script>
+
+
+</body>
+</html>

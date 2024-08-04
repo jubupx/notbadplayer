@@ -150,6 +150,17 @@ DataManager.prototype.CreateUserInfo = function(username
     return userinfo;
 }
 
+DataManager.prototype.CreateCarInfo = function(carnum, weight)
+{
+    let car = {};
+
+    car.carnum = carnum;
+    car.weight = weight;
+    car.phone = "未知";
+
+    return car;
+}
+
 DataManager.prototype.GetUserInfos = function(callback)
 {
     let objectDatas = this.objectDatas;
@@ -183,6 +194,39 @@ DataManager.prototype.GetUserInfos = function(callback)
     });
 }
 
+
+DataManager.prototype.GetCarInfos = function(callback)
+{
+    let objectDatas = this.objectDatas;
+    let CarInfos = objectDatas["CarInfos"];
+
+    if(CarInfos)
+    {
+        if(callback)
+            callback(CarInfos);
+        return;
+    }
+
+    let self = this;
+
+    this.Read("CarInfos", function (ret, data)
+    {
+        if(!ret || data == "")
+        {
+            CarInfos = [];
+        }
+        else
+        {
+            CarInfos = JSON.parse(data);
+        }
+
+        objectDatas["CarInfos"] = CarInfos;
+
+        if(callback)
+            callback(CarInfos);
+    });
+}
+
 DataManager.prototype.UpdateUserInfos = function(UserInfos, callback)
 {
     let objectDatas = this.objectDatas;
@@ -190,6 +234,19 @@ DataManager.prototype.UpdateUserInfos = function(UserInfos, callback)
     let data = JSON.stringify(UserInfos);
 
     this.Write("UserInfos", data, function (ret, err)
+    {
+        if(callback)
+            callback(ret, err);
+    });
+};
+
+DataManager.prototype.UpdateCarInfos = function(CarInfos, callback)
+{
+    let objectDatas = this.objectDatas;
+    objectDatas["CarInfos"] = CarInfos;
+    let data = JSON.stringify(CarInfos);
+
+    this.Write("CarInfos", data, function (ret, err)
     {
         if(callback)
             callback(ret, err);
@@ -267,6 +324,59 @@ DataManager.prototype.AddUserInfo = function(userInfo, updateuser, callback)
     });
 }
 
+
+DataManager.prototype.AddCarInfo = function(carInfo, updatecar, callback)
+{
+    let self = this;
+
+    self.GetCarInfos(function (CarInfos) {
+
+        let exsit = false;
+
+        if(updatecar)
+        {
+
+            for (let car of CarInfos) {
+                if (car.carnum == carInfo.carnum) {
+                    exsit = true;
+
+                    ///复制粘贴
+                    for (let attribname in carInfo) {
+                        car[attribname] = carInfo[attribname];
+                    }
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for (let car of CarInfos) {
+                if (car.carnum == carInfo.carnum) {
+                    exsit = true;
+                    break;
+                }
+            }
+
+
+            if(!exsit)
+            {
+                CarInfos.push(carInfo);
+                exsit = true;
+            }
+            else exsit = false;
+        }
+
+        if(exsit) {
+            ///更新文件
+            self.UpdateCarInfos(CarInfos, callback);
+        }else if(callback){
+            callback(false, "没有找到指定车辆或车辆已经存在");
+        }
+    });
+}
+
+
 DataManager.prototype.RemoveUserInfo = function(username, callback)
 {
     let self = this;
@@ -289,6 +399,33 @@ DataManager.prototype.RemoveUserInfo = function(username, callback)
             self.UpdateUserInfos(UserInfos, callback);
         }else if(callback) {
             callback(false, "没有找到指定用户");
+        }
+    });
+}
+
+
+DataManager.prototype.RemoveCarInfo = function(carnum, callback)
+{
+    let self = this;
+
+    self.GetCarInfos(function (CarInfos) {
+
+        let exsit = false;
+
+        for (let i = 0; i < CarInfos.length; i ++) {
+            let car = CarInfos[i];
+            if (car.carnum == carnum) {
+                exsit = true;
+                CarInfos.splice(i, 1);
+                break;
+            }
+        }
+
+        if(exsit) {
+            ///更新文件
+            self.UpdateCarInfos(CarInfos, callback);
+        }else if(callback) {
+            callback(false, "没有找到指定车辆");
         }
     });
 }
